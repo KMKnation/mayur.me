@@ -1,76 +1,42 @@
-const statusPhrases = [
-  "Training neural instincts",
-  "Deploying autonomous workflows",
-  "Refining deterministic outputs",
-  "Engineering calm under pressure",
-];
-
-const statusRotator = document.querySelector("#status-rotator");
 const yearStamp = document.querySelector("#year-stamp");
 const revealItems = document.querySelectorAll(".reveal");
-const navToggle = document.querySelector("#nav-toggle");
-const topbar = document.querySelector(".topbar");
-const navLinks = document.querySelectorAll(".nav a");
-const progressBar = document.querySelector("#scroll-progress-bar");
+const menuToggle = document.querySelector("#menu-toggle");
+const siteHeader = document.querySelector(".site-header");
+const navLinks = document.querySelectorAll(".site-nav a");
 const sectionNodes = document.querySelectorAll("main section[id]");
-const countUpNodes = document.querySelectorAll(".count-up");
-const tiltNodes = document.querySelectorAll("[data-tilt]");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-if (statusRotator) {
-  let phraseIndex = 0;
-
-  window.setInterval(() => {
-    phraseIndex = (phraseIndex + 1) % statusPhrases.length;
-    statusRotator.textContent = statusPhrases[phraseIndex];
-  }, 2400);
-}
-
-if (yearStamp) {
-  yearStamp.textContent = new Date().getFullYear();
-}
+const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
+const spotlightNodes = document.querySelectorAll(".site-header, .hero-stage, .project-card, .proof-column, .signal-triad article, .button");
+const tiltNodes = document.querySelectorAll(".hero-stage, .project-card");
 
 const updateScrollProgress = () => {
-  if (!progressBar) {
-    return;
-  }
-
   const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
   const progress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
   document.documentElement.style.setProperty("--scroll-progress", `${Math.min(Math.max(progress, 0), 1)}`);
 };
 
+if (yearStamp) {
+  yearStamp.textContent = new Date().getFullYear();
+}
+
 updateScrollProgress();
 window.addEventListener("scroll", updateScrollProgress, { passive: true });
 
-if (navToggle && topbar) {
-  navToggle.addEventListener("click", () => {
-    const isOpen = navToggle.getAttribute("aria-expanded") === "true";
-    navToggle.setAttribute("aria-expanded", String(!isOpen));
-    topbar.classList.toggle("nav-open", !isOpen);
+if (menuToggle && siteHeader) {
+  menuToggle.addEventListener("click", () => {
+    const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+    menuToggle.setAttribute("aria-expanded", String(!isOpen));
+    siteHeader.classList.toggle("nav-open", !isOpen);
     document.body.classList.toggle("nav-open", !isOpen);
   });
 
   navLinks.forEach((link) => {
     link.addEventListener("click", () => {
-      navToggle.setAttribute("aria-expanded", "false");
-      topbar.classList.remove("nav-open");
+      menuToggle.setAttribute("aria-expanded", "false");
+      siteHeader.classList.remove("nav-open");
       document.body.classList.remove("nav-open");
     });
   });
-}
-
-if (!reduceMotion) {
-  window.addEventListener(
-    "pointermove",
-    (event) => {
-      const x = `${(event.clientX / window.innerWidth) * 100}%`;
-      const y = `${(event.clientY / window.innerHeight) * 100}%`;
-      document.documentElement.style.setProperty("--pointer-x", x);
-      document.documentElement.style.setProperty("--pointer-y", y);
-    },
-    { passive: true }
-  );
 }
 
 if ("IntersectionObserver" in window) {
@@ -86,12 +52,12 @@ if ("IntersectionObserver" in window) {
       });
     },
     {
-      threshold: 0.18,
+      threshold: 0.16,
     }
   );
 
   revealItems.forEach((item, index) => {
-    item.style.transitionDelay = `${index * 60}ms`;
+    item.style.transitionDelay = `${index * 50}ms`;
     revealObserver.observe(item);
   });
 
@@ -103,7 +69,6 @@ if ("IntersectionObserver" in window) {
         }
 
         const activeId = entry.target.getAttribute("id");
-
         navLinks.forEach((link) => {
           const isActive = link.getAttribute("href") === `#${activeId}`;
           link.classList.toggle("is-active", isActive);
@@ -112,50 +77,12 @@ if ("IntersectionObserver" in window) {
     },
     {
       threshold: 0.45,
-      rootMargin: "-15% 0px -35% 0px",
+      rootMargin: "-16% 0px -36% 0px",
     }
   );
 
   sectionNodes.forEach((section) => {
     sectionObserver.observe(section);
-  });
-
-  const countObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) {
-          return;
-        }
-
-        const node = entry.target;
-        const target = Number(node.getAttribute("data-target") || "0");
-        const suffix = node.getAttribute("data-suffix") || "";
-        const duration = 1100;
-        const startTime = performance.now();
-
-        const tick = (currentTime) => {
-          const elapsed = currentTime - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          const value = Math.round(target * eased);
-          node.textContent = `${String(value).padStart(2, "0")}${suffix}`;
-
-          if (progress < 1) {
-            window.requestAnimationFrame(tick);
-          }
-        };
-
-        window.requestAnimationFrame(tick);
-        countObserver.unobserve(node);
-      });
-    },
-    {
-      threshold: 0.55,
-    }
-  );
-
-  countUpNodes.forEach((node) => {
-    countObserver.observe(node);
   });
 } else {
   revealItems.forEach((item) => {
@@ -163,16 +90,30 @@ if ("IntersectionObserver" in window) {
   });
 }
 
-if (!reduceMotion && window.matchMedia("(pointer: fine)").matches) {
+if (!reduceMotion && hasFinePointer) {
+  spotlightNodes.forEach((node) => {
+    node.addEventListener("pointermove", (event) => {
+      const bounds = node.getBoundingClientRect();
+      const pointerX = ((event.clientX - bounds.left) / bounds.width) * 100;
+      const pointerY = ((event.clientY - bounds.top) / bounds.height) * 100;
+      node.style.setProperty("--mx", `${pointerX}%`);
+      node.style.setProperty("--my", `${pointerY}%`);
+    });
+
+    node.addEventListener("pointerleave", () => {
+      node.style.removeProperty("--mx");
+      node.style.removeProperty("--my");
+    });
+  });
+
   tiltNodes.forEach((node) => {
     node.addEventListener("pointermove", (event) => {
       const bounds = node.getBoundingClientRect();
       const offsetX = (event.clientX - bounds.left) / bounds.width;
       const offsetY = (event.clientY - bounds.top) / bounds.height;
-      const rotateY = (offsetX - 0.5) * 8;
-      const rotateX = (0.5 - offsetY) * 8;
-
-      node.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+      const rotateY = (offsetX - 0.5) * 6;
+      const rotateX = (0.5 - offsetY) * 6;
+      node.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
     });
 
     node.addEventListener("pointerleave", () => {
