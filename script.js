@@ -1,57 +1,50 @@
-const yearStamp = document.querySelector("#year-stamp");
-const revealItems = document.querySelectorAll(".reveal");
-const navLinks = Array.from(document.querySelectorAll(".nav-link"));
-const sectionNodes = document.querySelectorAll("main section[id]");
+const root = document.documentElement;
 const mainContent = document.querySelector("#main-content");
-const rootElement = document.documentElement;
+const skipLink = document.querySelector(".skip-link");
+const yearStamp = document.querySelector("#year-stamp");
+const revealItems = Array.from(document.querySelectorAll(".reveal"));
+const navLinks = Array.from(document.querySelectorAll('.nav-link[href^="#"]'));
+const sections = Array.from(document.querySelectorAll("main section[id]"));
 const themeToggle = document.querySelector("#theme-toggle");
 const themeToggleText = document.querySelector(".theme-toggle-text");
 const themeColorMeta = document.querySelector("#theme-color-meta");
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const hasFinePointer = window.matchMedia("(pointer: fine)").matches;
-const spotlightNodes = document.querySelectorAll(".site-header, .hero-stage, .project-card, .proof-column, .signal-triad article, .button, .orbit-nav, .mobile-dock, .theme-toggle");
-const tiltNodes = document.querySelectorAll(".hero-stage, .project-card");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 const themeStorageKey = "mayur-theme";
 const themeColors = {
   dark: "#070b15",
   light: "#f6f2e9",
 };
-const urlTheme = new URLSearchParams(window.location.search).get("theme");
 
-const linksByHash = navLinks.reduce((hashMap, link) => {
+const urlTheme = new URLSearchParams(window.location.search).get("theme");
+const linksByHash = new Map();
+const visibleRatios = new Map();
+
+let scrollProgressFrame = 0;
+let activeHash = "";
+
+navLinks.forEach((link) => {
   const hash = link.getAttribute("href");
   if (!hash || !hash.startsWith("#")) {
-    return hashMap;
+    return;
   }
 
-  if (!hashMap.has(hash)) {
-    hashMap.set(hash, []);
+  if (!linksByHash.has(hash)) {
+    linksByHash.set(hash, []);
   }
 
-  hashMap.get(hash).push(link);
-  return hashMap;
-}, new Map());
+  linksByHash.get(hash).push(link);
+});
 
-const sectionHashes = Array.from(sectionNodes, (section) => {
-  const id = section.getAttribute("id");
-  return id ? `#${id}` : null;
-}).filter(Boolean);
+const sectionHashes = sections
+  .map((section) => section.id ? `#${section.id}` : "")
+  .filter((hash) => hash && linksByHash.has(hash));
 
 const defaultHash =
   (linksByHash.has("#hero") && "#hero") ||
-  sectionHashes.find((hash) => linksByHash.has(hash)) ||
+  sectionHashes[0] ||
   Array.from(linksByHash.keys())[0] ||
   "";
-
-let navSyncFrame = 0;
-let pageLoaded = document.readyState === "complete";
-
-const updateScrollProgress = () => {
-  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
-  const boundedProgress = Math.min(Math.max(progress, 0), 1);
-  document.documentElement.style.setProperty("--scroll-progress", `${boundedProgress}`);
-};
 
 const getSafeHash = (hash) => {
   if (hash && linksByHash.has(hash)) {
@@ -62,36 +55,40 @@ const getSafeHash = (hash) => {
 };
 
 const setActiveNav = (hash) => {
-  const safeHash = getSafeHash(hash);
+  const nextHash = getSafeHash(hash);
+  if (!nextHash || nextHash === activeHash) {
+    return;
+  }
+
+  activeHash = nextHash;
 
   navLinks.forEach((link) => {
-    link.classList.remove("is-active");
-    link.removeAttribute("aria-current");
-  });
+    const isActive = link.getAttribute("href") === nextHash;
+    link.classList.toggle("is-active", isActive);
 
-  const matchingLinks = linksByHash.get(safeHash) || [];
-  matchingLinks.forEach((link) => {
-    link.classList.add("is-active");
-    link.setAttribute("aria-current", "page");
+    if (isActive) {
+      link.setAttribute("aria-current", "location");
+      return;
+    }
+
+    link.removeAttribute("aria-current");
   });
 };
 
 const setTheme = (theme, persist = true) => {
-  const safeTheme = theme === "light" ? "light" : "dark";
-  rootElement.dataset.theme = safeTheme;
+  const nextTheme = theme === "light" ? "light" : "dark";
+  const nextAction = nextTheme === "light" ? "dark" : "light";
+
+  root.dataset.theme = nextTheme;
+  themeColorMeta?.setAttribute("content", themeColors[nextTheme]);
 
   if (themeToggle) {
-    const nextTheme = safeTheme === "light" ? "dark" : "light";
-    themeToggle.setAttribute("aria-label", `Switch to ${nextTheme} theme`);
-    themeToggle.setAttribute("aria-pressed", String(safeTheme === "light"));
+    themeToggle.setAttribute("aria-pressed", String(nextTheme === "light"));
+    themeToggle.setAttribute("aria-label", `Switch to ${nextAction} theme`);
   }
 
   if (themeToggleText) {
-    themeToggleText.textContent = safeTheme === "light" ? "Dark" : "Light";
-  }
-
-  if (themeColorMeta) {
-    themeColorMeta.setAttribute("content", themeColors[safeTheme]);
+    themeToggleText.textContent = nextAction[0].toUpperCase() + nextAction.slice(1);
   }
 
   if (!persist) {
@@ -99,9 +96,9 @@ const setTheme = (theme, persist = true) => {
   }
 
   try {
-    localStorage.setItem(themeStorageKey, safeTheme);
+    localStorage.setItem(themeStorageKey, nextTheme);
   } catch (error) {
-    // Ignore storage failures so the toggle still works for the current session.
+    // Ignore storage failures so the toggle still works in-session.
   }
 };
 
@@ -110,80 +107,103 @@ const getInitialTheme = () => {
     return urlTheme;
   }
 
-  if (rootElement.dataset.theme === "light" || rootElement.dataset.theme === "dark") {
-    return rootElement.dataset.theme;
+  if (root.dataset.theme === "light" || root.dataset.theme === "dark") {
+    return root.dataset.theme;
   }
 
   try {
-    if (localStorage.getItem(themeStorageKey) === "light") {
-      return "light";
-    }
+    return localStorage.getItem(themeStorageKey) === "light" ? "light" : "dark";
   } catch (error) {
-    // Ignore storage failures and fall back to dark mode.
+    return "dark";
   }
-
-  return "dark";
 };
 
-const getCurrentSectionHash = () => {
-  if (!sectionNodes.length) {
-    return getSafeHash(window.location.hash);
-  }
+const updateScrollProgress = () => {
+  scrollProgressFrame = 0;
 
-  if (window.scrollY <= 48) {
-    if (!pageLoaded && window.location.hash) {
-      return getSafeHash(window.location.hash);
-    }
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
+  const boundedProgress = Math.min(Math.max(progress, 0), 1);
 
-    return defaultHash;
-  }
-
-  const viewportAnchor = window.innerHeight * 0.28;
-  let closestHash = defaultHash;
-  let closestDistance = Number.POSITIVE_INFINITY;
-
-  sectionNodes.forEach((section) => {
-    const id = section.getAttribute("id");
-    if (!id) {
-      return;
-    }
-
-    const hash = `#${id}`;
-    const rect = section.getBoundingClientRect();
-
-    if (rect.top <= viewportAnchor && rect.bottom >= viewportAnchor) {
-      closestHash = hash;
-      closestDistance = -1;
-      return;
-    }
-
-    if (closestDistance < 0) {
-      return;
-    }
-
-    const distance = rect.top > viewportAnchor ? rect.top - viewportAnchor : viewportAnchor - rect.bottom;
-    if (distance < closestDistance) {
-      closestHash = hash;
-      closestDistance = distance;
-    }
-  });
-
-  return getSafeHash(closestHash);
+  root.style.setProperty("--scroll-progress", boundedProgress.toFixed(4));
 };
 
-const syncActiveNav = () => {
-  setActiveNav(getCurrentSectionHash());
-};
-
-const scheduleNavSync = () => {
-  if (navSyncFrame) {
+const scheduleScrollProgress = () => {
+  if (scrollProgressFrame) {
     return;
   }
 
-  navSyncFrame = window.requestAnimationFrame(() => {
-    navSyncFrame = 0;
-    syncActiveNav();
+  scrollProgressFrame = window.requestAnimationFrame(updateScrollProgress);
+};
+
+const getLayoutDrivenHash = () => {
+  if (!sections.length) {
+    return getSafeHash(window.location.hash || defaultHash);
+  }
+
+  if (window.scrollY <= 24 && !window.location.hash) {
+    return defaultHash;
+  }
+
+  const anchorLine = window.innerHeight * 0.32;
+  const rankedSections = sections
+    .map((section) => {
+      const hash = `#${section.id}`;
+      const ratio = visibleRatios.get(section.id) ?? 0;
+      const rect = section.getBoundingClientRect();
+      const containsAnchor = rect.top <= anchorLine && rect.bottom >= anchorLine;
+      const distance = containsAnchor
+        ? 0
+        : Math.min(Math.abs(rect.top - anchorLine), Math.abs(rect.bottom - anchorLine));
+
+      return {
+        hash,
+        ratio,
+        distance,
+        containsAnchor,
+        topOffset: Math.abs(rect.top),
+      };
+    })
+    .sort((left, right) => {
+      if (left.containsAnchor !== right.containsAnchor) {
+        return left.containsAnchor ? -1 : 1;
+      }
+
+      if (Math.abs(left.ratio - right.ratio) > 0.015) {
+        return right.ratio - left.ratio;
+      }
+
+      if (Math.abs(left.distance - right.distance) > 2) {
+        return left.distance - right.distance;
+      }
+
+      return left.topOffset - right.topOffset;
+    });
+
+  return getSafeHash(rankedSections[0]?.hash || window.location.hash || defaultHash);
+};
+
+const syncActiveNav = () => {
+  setActiveNav(getLayoutDrivenHash());
+};
+
+const scrollSectionIntoView = (hash) => {
+  const safeHash = getSafeHash(hash);
+  if (!safeHash) {
+    return false;
+  }
+
+  const targetSection = document.querySelector(safeHash);
+  if (!targetSection) {
+    return false;
+  }
+
+  targetSection.scrollIntoView({
+    block: "start",
+    behavior: "auto",
   });
+  setActiveNav(safeHash);
+  return true;
 };
 
 if (yearStamp) {
@@ -191,18 +211,14 @@ if (yearStamp) {
 }
 
 setTheme(getInitialTheme(), false);
+setActiveNav(getSafeHash(window.location.hash || defaultHash));
 updateScrollProgress();
-window.addEventListener("scroll", updateScrollProgress, { passive: true });
-window.addEventListener("scroll", scheduleNavSync, { passive: true });
-window.addEventListener("resize", scheduleNavSync);
-window.addEventListener(
-  "load",
-  () => {
-    pageLoaded = true;
-    scheduleNavSync();
-  },
-  { once: true }
-);
+
+window.addEventListener("scroll", scheduleScrollProgress, { passive: true });
+window.addEventListener("resize", () => {
+  scheduleScrollProgress();
+  syncActiveNav();
+});
 
 navLinks.forEach((link) => {
   link.addEventListener("click", () => {
@@ -210,44 +226,82 @@ navLinks.forEach((link) => {
   });
 });
 
-if (themeToggle) {
-  themeToggle.addEventListener("click", () => {
-    setTheme(rootElement.dataset.theme === "light" ? "dark" : "light");
-  });
-}
+themeToggle?.addEventListener("click", () => {
+  const preservedHash = getSafeHash(window.location.hash || activeHash || defaultHash);
 
-if (mainContent) {
-  document.querySelector('.skip-link')?.addEventListener("click", () => {
-    window.requestAnimationFrame(() => {
-      mainContent.focus();
-    });
+  setTheme(root.dataset.theme === "light" ? "dark" : "light");
+
+  window.requestAnimationFrame(() => {
+    if (!scrollSectionIntoView(preservedHash)) {
+      syncActiveNav();
+    }
   });
-}
+});
+
+skipLink?.addEventListener("click", () => {
+  if (!mainContent) {
+    return;
+  }
+
+  window.requestAnimationFrame(() => {
+    mainContent.focus({ preventScroll: true });
+  });
+});
 
 window.addEventListener("hashchange", () => {
-  setActiveNav(getSafeHash(window.location.hash));
-  scheduleNavSync();
+  setActiveNav(getSafeHash(window.location.hash || defaultHash));
+  syncActiveNav();
 });
 
 if ("IntersectionObserver" in window) {
-  const revealObserver = new IntersectionObserver(
+  const sectionObserver = new IntersectionObserver(
     (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute("id");
+        if (!id) {
+          return;
+        }
+
+        visibleRatios.set(id, entry.isIntersecting ? entry.intersectionRatio : 0);
+      });
+
+      syncActiveNav();
+    },
+    {
+      rootMargin: "-18% 0px -52% 0px",
+      threshold: [0, 0.12, 0.24, 0.4, 0.58, 0.76, 1],
+    }
+  );
+
+  sections.forEach((section) => {
+    visibleRatios.set(section.id, 0);
+    sectionObserver.observe(section);
+  });
+} else {
+  window.addEventListener("scroll", syncActiveNav, { passive: true });
+  window.addEventListener("load", syncActiveNav, { once: true });
+}
+
+if (!reducedMotion && "IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) {
           return;
         }
 
         entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
+        observer.unobserve(entry.target);
       });
     },
     {
       threshold: 0.16,
+      rootMargin: "0px 0px -8% 0px",
     }
   );
 
   revealItems.forEach((item, index) => {
-    item.style.transitionDelay = `${index * 50}ms`;
+    item.style.transitionDelay = `${Math.min(index, 10) * 70}ms`;
     revealObserver.observe(item);
   });
 } else {
@@ -256,37 +310,16 @@ if ("IntersectionObserver" in window) {
   });
 }
 
-setActiveNav(getSafeHash(window.location.hash || defaultHash));
-scheduleNavSync();
+window.addEventListener(
+  "load",
+  () => {
+    window.requestAnimationFrame(() => {
+      if (!window.location.hash || !scrollSectionIntoView(window.location.hash)) {
+        syncActiveNav();
+      }
 
-if (!reduceMotion && hasFinePointer) {
-  spotlightNodes.forEach((node) => {
-    node.addEventListener("pointermove", (event) => {
-      const bounds = node.getBoundingClientRect();
-      const pointerX = ((event.clientX - bounds.left) / bounds.width) * 100;
-      const pointerY = ((event.clientY - bounds.top) / bounds.height) * 100;
-      node.style.setProperty("--mx", `${pointerX}%`);
-      node.style.setProperty("--my", `${pointerY}%`);
+      scheduleScrollProgress();
     });
-
-    node.addEventListener("pointerleave", () => {
-      node.style.removeProperty("--mx");
-      node.style.removeProperty("--my");
-    });
-  });
-
-  tiltNodes.forEach((node) => {
-    node.addEventListener("pointermove", (event) => {
-      const bounds = node.getBoundingClientRect();
-      const offsetX = (event.clientX - bounds.left) / bounds.width;
-      const offsetY = (event.clientY - bounds.top) / bounds.height;
-      const rotateY = (offsetX - 0.5) * 6;
-      const rotateX = (0.5 - offsetY) * 6;
-      node.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-3px)`;
-    });
-
-    node.addEventListener("pointerleave", () => {
-      node.style.transform = "";
-    });
-  });
-}
+  },
+  { once: true }
+);
