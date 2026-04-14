@@ -15,7 +15,32 @@
     <meta name="author" content="Mayur Kanojiya" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
-    <meta name="theme-color" content="#070b15" />
+    <meta id="theme-color-meta" name="theme-color" content="#070b15" />
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const urlTheme = new URLSearchParams(window.location.search).get("theme");
+        let theme = "dark";
+
+        if (urlTheme === "light" || urlTheme === "dark") {
+          theme = urlTheme;
+        } else {
+          try {
+            if (localStorage.getItem("mayur-theme") === "light") {
+              theme = "light";
+            }
+          } catch (error) {
+            theme = "dark";
+          }
+        }
+
+        root.dataset.theme = theme;
+        const themeMeta = document.querySelector("#theme-color-meta");
+        if (themeMeta) {
+          themeMeta.setAttribute("content", theme === "light" ? "#f6f2e9" : "#070b15");
+        }
+      })();
+    </script>
     <link rel="canonical" href="https://mayur.it/" />
     <link rel="alternate" hreflang="en" href="https://mayur.it/" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="https://mayur.it/sitemap.xml" />
@@ -42,7 +67,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Syne:wght@500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&amp;family=Syne:wght@500;600;700;800&amp;display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
@@ -85,6 +110,7 @@
     </script>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="scroll-meter" aria-hidden="true">
       <span id="scroll-progress-bar"></span>
     </div>
@@ -95,34 +121,33 @@
         <span class="brand-mark">MK</span>
         <span class="brand-text">
           <strong>Mayur Kanojiya</strong>
-          <span>AI and ML Builder</span>
+          <span>AI Architect</span>
         </span>
       </a>
 
-      <button
-        class="menu-toggle"
-        id="menu-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="site-nav"
-        aria-label="Toggle menu"
-      >
-        <span></span>
-        <span></span>
-      </button>
-
-      <nav class="site-nav" id="site-nav">
-        <a href="#hero">Home</a>
-        <a href="#signals">Signals</a>
-        <a href="#projects">Projects</a>
-        <a href="#proof">Proof</a>
-        <a href="#contact">Contact</a>
+      <nav class="orbit-nav" id="orbit-nav" aria-label="Primary">
+        <a class="nav-link" href="#hero"><span class="nav-link-label">Home</span></a>
+        <a class="nav-link" href="#signals"><span class="nav-link-label">Signals</span></a>
+        <a class="nav-link" href="#projects"><span class="nav-link-label">Projects</span></a>
+        <a class="nav-link" href="#proof"><span class="nav-link-label">Proof</span></a>
+        <a class="nav-link" href="#contact"><span class="nav-link-label">Contact</span></a>
       </nav>
 
-      <a class="header-cta" href="#projects">Explore POCs</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false">
+        <span class="theme-toggle-core" aria-hidden="true"></span>
+        <span class="theme-toggle-text">Light</span>
+      </button>
     </header>
 
-    <main>
+    <nav class="mobile-dock" id="mobile-dock" aria-label="Mobile Primary">
+      <a class="nav-link" href="#hero">Home</a>
+      <a class="nav-link" href="#signals">Signals</a>
+      <a class="nav-link" href="#projects">Projects</a>
+      <a class="nav-link" href="#proof">Proof</a>
+      <a class="nav-link" href="#contact">Contact</a>
+    </nav>
+
+    <main id="main-content" tabindex="-1">
       <section class="hero" id="hero">
         <div class="hero-inner">
           <div class="hero-copy reveal">
@@ -220,12 +245,25 @@
         <div class="project-grid">
           <article class="project-card">
             <div class="project-model">
-              <div class="poc-3d poc-incident" role="img" aria-label="3D agent swarm around a central incident orchestrator">
-                <span class="incident-core"></span>
-                <span class="incident-node node-one"></span>
-                <span class="incident-node node-two"></span>
-                <span class="incident-node node-three"></span>
-                <span class="incident-node node-four"></span>
+              <div class="poc-3d poc-incident" role="img" aria-label="3D incident classification routing to the correct specialist agent team">
+                <span class="incident-classifier"></span>
+                <span class="incident-classifier-label">Incident Classifier</span>
+
+                <span class="incident-lane lane-one"></span>
+                <span class="incident-lane lane-two"></span>
+                <span class="incident-lane lane-three"></span>
+
+                <span class="incident-team team-one"></span>
+                <span class="incident-team team-two"></span>
+                <span class="incident-team team-three"></span>
+
+                <span class="incident-team-label team-label-one">NetOps Team</span>
+                <span class="incident-team-label team-label-two">Identity Team</span>
+                <span class="incident-team-label team-label-three">Billing Team</span>
+
+                <span class="incident-packet packet-a"></span>
+                <span class="incident-packet packet-b"></span>
+                <span class="incident-packet packet-c"></span>
               </div>
             </div>
             <div class="project-copy">
