@@ -9,6 +9,8 @@ gsap.registerPlugin(ScrollSmoother, ScrollTrigger);
 export let smoother: ScrollSmoother;
 
 const Navbar = () => {
+  const homeHref = import.meta.env.BASE_URL;
+
   useEffect(() => {
     smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
@@ -42,7 +44,7 @@ const Navbar = () => {
   return (
     <>
       <div className="header">
-        <a href="/#" className="navbar-title" data-cursor="disable">
+        <a href={homeHref} className="navbar-title" data-cursor="disable">
           MK
         </a>
         <a

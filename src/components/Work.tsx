@@ -3,35 +3,36 @@ import "./styles/Work.css";
 import WorkImage from "./WorkImage";
 import { MdArrowBack, MdArrowForward } from "react-icons/md";
 
-const SHOWCASE_URL = "/portfolio-showcase.html";
+const assetBase = import.meta.env.BASE_URL;
+const SHOWCASE_URL = `${assetBase}portfolio-showcase.html`;
 
 const projects = [
   {
     title: "Autonomous Incident Agent Team",
     category: "Multi-Agent Incident Intelligence",
     tools: "Role orchestration, escalation routing, deterministic decision paths",
-    image: "/images/placeholder.webp",
+    image: `${assetBase}images/placeholder.webp`,
     link: "https://github.com/KMKnation",
   },
   {
     title: "Deterministic JSON-to-Markdown Engine",
     category: "LLM Output Compiler",
     tools: "Schema alignment, low-hallucination output, UI-ready formatting",
-    image: "/images/nextBL.webp",
+    image: `${assetBase}images/nextBL.webp`,
     link: "https://github.com/KMKnation",
   },
   {
     title: "Adaptive Query Radar",
     category: "Emergent Signal Detection",
     tools: "Trend clustering, alert intelligence, patent-backed architecture",
-    image: "/images/radix.png",
+    image: `${assetBase}images/radix.png`,
     link: "https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081",
   },
   {
     title: "Edge Vision Sentinel",
     category: "Computer Vision on Edge",
     tools: "OCR, recognition, low-latency inference, OpenVINO optimization",
-    image: "/images/sapphire.png",
+    image: `${assetBase}images/sapphire.png`,
     link: "https://www.linkedin.com/in/mayurkanojiya/",
   },
 ];

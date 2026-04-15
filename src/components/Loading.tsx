@@ -5,6 +5,7 @@ import { useLoading } from "../context/LoadingProvider";
 import Marquee from "react-fast-marquee";
 
 const Loading = ({ percent }: { percent: number }) => {
+  const homeHref = import.meta.env.BASE_URL;
   const { setIsLoading } = useLoading();
   const [loaded, setLoaded] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -45,7 +46,7 @@ const Loading = ({ percent }: { percent: number }) => {
   return (
     <>
       <div className="loading-header">
-        <a href="/#" className="loader-title" data-cursor="disable">
+        <a href={homeHref} className="loader-title" data-cursor="disable">
           MK
         </a>
         <div className={`loaderGame ${clicked && "loader-out"}`}>
