@@ -1,0 +1,58 @@
+import "./styles/Patent.css";
+import { MdArrowOutward } from "react-icons/md";
+
+const patents = [
+  {
+    title: "US Patent 12,461,979",
+    type: "Granted Patent",
+    summary:
+      "Adaptive query intelligence for enterprise support operations, focused on identifying emergent incident patterns and response signals.",
+    meta: "Granted: November 4, 2025",
+    link: "https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081",
+  },
+  {
+    title: "Publication 20250278444",
+    type: "Patent Publication",
+    summary:
+      "Published technical disclosure covering adaptive detection architecture, clustering, and operational escalation intelligence.",
+    meta: "Publication ID: 20250278444",
+    link: "https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081",
+  },
+  {
+    title: "Query Radar Patent Domain",
+    type: "Innovation Focus",
+    summary:
+      "Core domain includes real-time signal extraction from support queries, anomaly surfacing, and enterprise-scale response orchestration.",
+    meta: "Area: AI + Enterprise Support Intelligence",
+    link: "https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081",
+  },
+];
+
+const Patent = () => {
+  return (
+    <section className="patent-section" id="patents">
+      <div className="patent-container section-container">
+        <h2>
+          Patent <span>Work</span>
+        </h2>
+        <div className="patent-grid" data-cursor="disable">
+          {patents.map((patent) => (
+            <article className="patent-card" key={patent.title}>
+              <p className="patent-type">{patent.type}</p>
+              <h3>{patent.title}</h3>
+              <p className="patent-summary">{patent.summary}</p>
+              <div className="patent-footer">
+                <span>{patent.meta}</span>
+                <a href={patent.link} target="_blank" rel="noreferrer">
+                  View <MdArrowOutward />
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Patent;

@@ -1,44 +1,44 @@
-# mayur.me
+# 3D Portfolio Website (Mayur Kanojiya)
 
-A premium personal portfolio for Mayur Kanojiya, focused on AI systems, enterprise product engineering, and modern web presentation.
+This repository contains Mayur Kanojiya's portfolio built on the same UI/animation source style as the reference 3D portfolio, with all personal content updated for Mayur.
 
-## Overview
+## Stack
 
-This repository contains a responsive single-page portfolio site designed with a cinematic AI aesthetic. It highlights:
+- React + TypeScript + Vite
+- GSAP + ScrollSmoother
+- Three.js + React Three Fiber
+- React Icons + React Fast Marquee
 
-- AI systems and multi-agent workflow work
-- Oracle AI & ML experience
-- patents, credentials, and research
-- responsive layouts and premium motion design
-
-## Project Structure
-
-- `index.html` - page structure and content
-- `styles.css` - visual system, layout, responsive design, and animation
-- `script.js` - interaction layer for motion, scroll progress, counters, and navigation behavior
-
-## Run Locally
-
-You can serve the site with a simple local server:
+## Run locally
 
 ```bash
-python3 -m http.server 8001
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8001`.
+## Build
 
-## Deployment
+```bash
+npm run build
+npm run preview
+```
 
-This project is static and can be deployed easily to:
+## Content updated
 
-- GitHub Pages
-- Netlify
-- Vercel
-- any static web host
+The following sections are customized with Mayur's profile content:
 
-## Author
+- Hero / Landing
+- About
+- What I Do
+- Career & Experience
+- Work Projects
+- Contact + Social Links
+- Loading Screen Identity
 
-Mayur Kanojiya
+## Credits
 
-- GitHub: `https://github.com/KMKnation`
-- LinkedIn: `https://www.linkedin.com/in/mayurkanojiya/`
+Base UI source inspiration and structure adapted from:
+
+- https://github.com/akashrmalhotra/3d-portfolio
+
+(Used under MIT license.)
