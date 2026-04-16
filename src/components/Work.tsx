@@ -2,61 +2,29 @@ import { useState, useCallback } from "react";
 import "./styles/Work.css";
 import WorkImage from "./WorkImage";
 import { MdArrowBack, MdArrowForward } from "react-icons/md";
+import { DEFAULT_CMS_CONTENT } from "../cms/defaultContent";
+import { WorkItem } from "../cms/types";
+import AppLink from "../routing/AppLink";
 
-const assetBase = import.meta.env.BASE_URL;
-const WORK_SHOWCASE_URL = `${assetBase}work-showcase.html`;
-
-interface WorkProject {
-  title: string;
-  category: string;
-  tools: string;
-  image: string;
-  link: string;
-  isViewMoreTile?: boolean;
+interface WorkProps {
+  items?: WorkItem[];
 }
 
-const projects = [
-  {
-    title: "Autonomous Incident Agent Team",
-    category: "Multi-Agent Incident Intelligence",
-    tools: "Role orchestration, escalation routing, deterministic decision paths",
-    image: `${assetBase}images/placeholder.webp`,
-    link: "https://github.com/KMKnation",
-  },
-  {
-    title: "Deterministic JSON-to-Markdown Engine",
-    category: "LLM Output Compiler",
-    tools: "Schema alignment, low-hallucination output, UI-ready formatting",
-    image: `${assetBase}images/nextBL.webp`,
-    link: "https://github.com/KMKnation",
-  },
-  {
-    title: "Adaptive Query Radar",
-    category: "Emergent Signal Detection",
-    tools: "Trend clustering, alert intelligence, patent-backed architecture",
-    image: `${assetBase}images/radix.png`,
-    link: "https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081",
-  },
-  {
-    title: "Edge Vision Sentinel",
-    category: "Computer Vision on Edge",
-    tools: "OCR, recognition, low-latency inference, OpenVINO optimization",
-    image: `${assetBase}images/sapphire.png`,
-    link: "https://www.linkedin.com/in/mayurkanojiya/",
-  },
-  {
-    title: "Explore Complete Work Portfolio",
-    category: "Case Studies and Deep Dives",
-    tools: "Architecture breakdowns, execution notes, outcomes, and showcase snapshots",
-    image: `${assetBase}images/preview1.png`,
-    link: WORK_SHOWCASE_URL,
-    isViewMoreTile: true,
-  },
-] satisfies WorkProject[];
+const getVariantFromPreset = (preset: string) => {
+  const normalized = preset.toLowerCase();
+  if (normalized.includes("agent")) return 0;
+  if (normalized.includes("compiler")) return 1;
+  if (normalized.includes("radar")) return 2;
+  if (normalized.includes("vision")) return 3;
+  return 4;
+};
 
-const Work = () => {
+const Work = ({ items = DEFAULT_CMS_CONTENT.workItems }: WorkProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const projects = [...items]
+    .filter((item) => item.isVisible)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
 
   const goToSlide = useCallback(
     (index: number) => {
@@ -69,16 +37,18 @@ const Work = () => {
   );
 
   const goToPrev = useCallback(() => {
+    if (projects.length <= 1) return;
     const newIndex =
       currentIndex === 0 ? projects.length - 1 : currentIndex - 1;
     goToSlide(newIndex);
-  }, [currentIndex, goToSlide]);
+  }, [currentIndex, goToSlide, projects.length]);
 
   const goToNext = useCallback(() => {
+    if (projects.length <= 1) return;
     const newIndex =
       currentIndex === projects.length - 1 ? 0 : currentIndex + 1;
     goToSlide(newIndex);
-  }, [currentIndex, goToSlide]);
+  }, [currentIndex, goToSlide, projects.length]);
 
   return (
     <div className="work-section" id="work">
@@ -113,7 +83,7 @@ const Work = () => {
               }}
             >
               {projects.map((project, index) => (
-                <div className="carousel-slide" key={index}>
+                <div className="carousel-slide" key={project.id}>
                   <div className="carousel-content">
                     <div className="carousel-info">
                       <div className="carousel-number">
@@ -129,15 +99,15 @@ const Work = () => {
                           <p>{project.tools}</p>
                         </div>
                         {project.isViewMoreTile ? (
-                          <a
+                          <AppLink
                             className="view-more-btn"
                             href={project.link}
-                            target="_blank"
-                            rel="noreferrer"
+                            target={project.link.startsWith("http") ? "_blank" : undefined}
+                            rel={project.link.startsWith("http") ? "noreferrer" : undefined}
                             data-cursor="disable"
                           >
                             View More
-                          </a>
+                          </AppLink>
                         ) : null}
                       </div>
                     </div>
@@ -145,7 +115,7 @@ const Work = () => {
                       <WorkImage
                         title={project.title}
                         category={project.category}
-                        variant={index}
+                        variant={getVariantFromPreset(project.animationPreset)}
                         link={project.link}
                       />
                     </div>

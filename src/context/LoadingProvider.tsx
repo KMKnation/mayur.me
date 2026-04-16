@@ -2,10 +2,10 @@ import {
   createContext,
   PropsWithChildren,
   useContext,
-  useEffect,
   useState,
 } from "react";
 import Loading from "../components/Loading";
+import { useCurrentPath } from "../routing/router";
 
 interface LoadingType {
   isLoading: boolean;
@@ -16,6 +16,8 @@ interface LoadingType {
 export const LoadingContext = createContext<LoadingType | null>(null);
 
 export const LoadingProvider = ({ children }: PropsWithChildren) => {
+  const pathname = useCurrentPath();
+  const isHomeRoute = pathname === "/";
   const [isLoading, setIsLoading] = useState(true);
   const [loading, setLoading] = useState(0);
 
@@ -24,11 +26,10 @@ export const LoadingProvider = ({ children }: PropsWithChildren) => {
     setIsLoading,
     setLoading,
   };
-  useEffect(() => {}, [loading]);
 
   return (
     <LoadingContext.Provider value={value as LoadingType}>
-      {isLoading && <Loading percent={loading} />}
+      {isHomeRoute && isLoading ? <Loading percent={loading} /> : null}
       <main className="main-body">{children}</main>
     </LoadingContext.Provider>
   );

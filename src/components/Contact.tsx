@@ -1,83 +1,66 @@
 import { MdArrowOutward, MdCopyright } from "react-icons/md";
 import "./styles/Contact.css";
+import { DEFAULT_CMS_CONTENT } from "../cms/defaultContent";
+import { ContactInfo, SocialLink } from "../cms/types";
+import AppLink from "../routing/AppLink";
 
-const Contact = () => {
+interface ContactProps {
+  contactInfo?: ContactInfo;
+  socialLinks?: SocialLink[];
+}
+
+const Contact = ({
+  contactInfo = DEFAULT_CMS_CONTENT.sections.contact,
+  socialLinks = DEFAULT_CMS_CONTENT.socialLinks,
+}: ContactProps) => {
   return (
     <div className="contact-section section-container" id="contact">
       <div className="contact-container">
-        <h3>Contact</h3>
+        <h3>{contactInfo.title}</h3>
         <div className="contact-flex">
           <div className="contact-box">
-            <h4>Connect</h4>
-            <p>
-              <a
-                href="mailto:kanojiyamayur@gmail.com"
-                target="_blank"
-                rel="noreferrer"
-                data-cursor="disable"
-              >
-                Email — kanojiyamayur@gmail.com
-              </a>
-            </p>
-            <p>
-              <a
-                href="https://www.linkedin.com/in/mayurkanojiya/"
-                target="_blank"
-                rel="noreferrer"
-                data-cursor="disable"
-              >
-                LinkedIn — mayurkanojiya
-              </a>
-            </p>
-            <h4>Education</h4>
-            <p>Master&apos;s in Data Science, BITS Pilani</p>
-            <p>Bachelor&apos;s in Computer Engineering</p>
+            <h4>{contactInfo.connectTitle}</h4>
+            {contactInfo.connectLinks.map((item) => (
+              <p key={item.href}>
+                <AppLink
+                  href={item.href}
+                  target={item.href.startsWith("http") || item.href.startsWith("mailto:") ? "_blank" : undefined}
+                  rel={item.href.startsWith("http") || item.href.startsWith("mailto:") ? "noreferrer" : undefined}
+                  data-cursor="disable"
+                >
+                  {item.label}
+                </AppLink>
+              </p>
+            ))}
+            <h4>{contactInfo.educationTitle}</h4>
+            {contactInfo.educationLines.map((line) => (
+              <p key={line}>{line}</p>
+            ))}
           </div>
           <div className="contact-box">
-            <h4>Social</h4>
-            <a
-              href="https://github.com/KMKnation"
-              target="_blank"
-              rel="noreferrer"
-              data-cursor="disable"
-              className="contact-social"
-            >
-              GitHub <MdArrowOutward />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/mayurkanojiya/"
-              target="_blank"
-              rel="noreferrer"
-              data-cursor="disable"
-              className="contact-social"
-            >
-              LinkedIn <MdArrowOutward />
-            </a>
-            <a
-              href="mailto:kanojiyamayur@gmail.com"
-              target="_blank"
-              rel="noreferrer"
-              data-cursor="disable"
-              className="contact-social"
-            >
-              Email <MdArrowOutward />
-            </a>
-            <a
-              href="https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081"
-              target="_blank"
-              rel="noreferrer"
-              data-cursor="disable"
-              className="contact-social"
-            >
-              Patent Record <MdArrowOutward />
-            </a>
+            <h4>{contactInfo.socialTitle}</h4>
+            {socialLinks
+              .filter((item) => item.isVisible)
+              .map((item) => (
+                <AppLink
+                  key={item.id}
+                  href={item.url}
+                  target={item.url.startsWith("http") || item.url.startsWith("mailto:") ? "_blank" : undefined}
+                  rel={item.url.startsWith("http") || item.url.startsWith("mailto:") ? "noreferrer" : undefined}
+                  data-cursor="disable"
+                  className="contact-social"
+                >
+                  {item.label} <MdArrowOutward />
+                </AppLink>
+              ))}
           </div>
           <div className="contact-box">
             <h2>
-              Designed and Developed <br /> by <span>Mayur Kanojiya</span>
+              {contactInfo.footerTitle} <br /> by{" "}
+              <span>{contactInfo.footerHighlight}</span>
             </h2>
             <h5>
-              <MdCopyright /> 2026
+              <MdCopyright /> {contactInfo.copyrightText}
             </h5>
           </div>
         </div>

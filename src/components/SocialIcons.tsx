@@ -3,20 +3,49 @@ import { MdEmail, MdOutlineDescription } from "react-icons/md";
 import "./styles/SocialIcons.css";
 import { useEffect } from "react";
 import HoverLinks from "./HoverLinks";
+import { DEFAULT_CMS_CONTENT } from "../cms/defaultContent";
+import { SiteSettings, SocialLink } from "../cms/types";
+import AppLink from "../routing/AppLink";
 
-const SocialIcons = () => {
+interface SocialIconsProps {
+  links?: SocialLink[];
+  settings?: SiteSettings;
+}
+
+const iconForPlatform = (platform: SocialLink["platform"]) => {
+  switch (platform) {
+    case "github":
+      return <FaGithub />;
+    case "linkedin":
+      return <FaLinkedinIn />;
+    case "email":
+      return <MdEmail />;
+    default:
+      return <MdOutlineDescription />;
+  }
+};
+
+const SocialIcons = ({
+  links = DEFAULT_CMS_CONTENT.socialLinks,
+  settings = DEFAULT_CMS_CONTENT.settings,
+}: SocialIconsProps) => {
   useEffect(() => {
-    const social = document.getElementById("social") as HTMLElement;
+    const social = document.getElementById("social") as HTMLElement | null;
+    if (!social) return;
+    const cleanups: Array<() => void> = [];
 
     social.querySelectorAll("span").forEach((item) => {
       const elem = item as HTMLElement;
       const link = elem.querySelector("a") as HTMLElement;
+      if (!link) return;
 
-      const rect = elem.getBoundingClientRect();
-      let mouseX = rect.width / 2;
-      let mouseY = rect.height / 2;
+      const getRect = () => elem.getBoundingClientRect();
+      const initialRect = getRect();
+      let mouseX = initialRect.width / 2;
+      let mouseY = initialRect.height / 2;
       let currentX = 0;
       let currentY = 0;
+      let frame = 0;
 
       const updatePosition = () => {
         currentX += (mouseX - currentX) * 0.1;
@@ -25,10 +54,11 @@ const SocialIcons = () => {
         link.style.setProperty("--siLeft", `${currentX}px`);
         link.style.setProperty("--siTop", `${currentY}px`);
 
-        requestAnimationFrame(updatePosition);
+        frame = requestAnimationFrame(updatePosition);
       };
 
       const onMouseMove = (e: MouseEvent) => {
+        const rect = getRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
@@ -45,63 +75,47 @@ const SocialIcons = () => {
 
       updatePosition();
 
-      return () => {
-        elem.removeEventListener("mousemove", onMouseMove);
-      };
+      cleanups.push(() => {
+        document.removeEventListener("mousemove", onMouseMove);
+        cancelAnimationFrame(frame);
+      });
     });
+
+    return () => {
+      cleanups.forEach((cleanup) => {
+        cleanup();
+      });
+    };
   }, []);
 
   return (
     <div className="icons-section">
       <div className="social-icons" data-cursor="icons" id="social">
-        <span>
-          <a
-            href="https://github.com/KMKnation"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <FaGithub />
-          </a>
-        </span>
-        <span>
-          <a
-            href="https://www.linkedin.com/in/mayurkanojiya/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <FaLinkedinIn />
-          </a>
-        </span>
-        <span>
-          <a
-            href="mailto:kanojiyamayur@gmail.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MdEmail />
-          </a>
-        </span>
-        <span>
-          <a
-            href="https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MdOutlineDescription />
-          </a>
-        </span>
+        {links
+          .filter((link) => link.isVisible)
+          .map((link) => (
+            <span key={link.id}>
+              <AppLink
+                href={link.url}
+                target={link.url.startsWith("http") || link.url.startsWith("mailto:") ? "_blank" : undefined}
+                rel={link.url.startsWith("http") || link.url.startsWith("mailto:") ? "noreferrer" : undefined}
+              >
+                {iconForPlatform(link.platform)}
+              </AppLink>
+            </span>
+          ))}
       </div>
-      <a
+      <AppLink
         className="resume-button"
-        href="https://www.linkedin.com/in/mayurkanojiya/"
+        href={settings.resumeUrl}
         target="_blank"
         rel="noreferrer"
       >
-        <HoverLinks text="PROFILE" />
+        <HoverLinks text={settings.resumeLabel} />
         <span>
           <MdOutlineDescription />
         </span>
-      </a>
+      </AppLink>
     </div>
   );
 };

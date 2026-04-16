@@ -1,4 +1,5 @@
 import { MdArrowOutward } from "react-icons/md";
+import AppLink from "../routing/AppLink";
 
 interface Props {
   title: string;
@@ -91,13 +92,16 @@ const renderScene = (variant: number) => {
 
 const WorkImage = (props: Props) => {
   const bannerLabel = `${props.title} - ${props.category}`;
+  const isExternal =
+    Boolean(props.link) &&
+    (props.link!.startsWith("http") || props.link!.startsWith("mailto:"));
   return (
     <div className="work-image" data-variant={props.variant}>
-      <a
+      <AppLink
         className="work-image-in work-3d-banner"
-        href={props.link}
-        target="_blank"
-        rel="noreferrer"
+        href={props.link ?? "#"}
+        target={isExternal ? "_blank" : undefined}
+        rel={isExternal ? "noreferrer" : undefined}
         data-cursor={"disable"}
         aria-label={bannerLabel}
       >
@@ -112,7 +116,7 @@ const WorkImage = (props: Props) => {
           <p className="work-3d-subtitle">{props.category}</p>
           <h5>{props.title}</h5>
         </div>
-      </a>
+      </AppLink>
     </div>
   );
 };

@@ -307,7 +307,7 @@ body {
   }
 
   50% {
-    transform: translate3d(0, -12px, 0);
+    transform: translate3d(0, calc(var(--float-y, 12px) * -1), 0);
   }
 }
 

@@ -4,14 +4,22 @@ import HoverLinks from "./HoverLinks";
 import { gsap } from "gsap";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import "./styles/Navbar.css";
+import { DEFAULT_CMS_CONTENT } from "../cms/defaultContent";
+import { SiteSettings } from "../cms/types";
+import AppLink from "../routing/AppLink";
 
 gsap.registerPlugin(ScrollSmoother, ScrollTrigger);
 export let smoother: ScrollSmoother;
 
-const Navbar = () => {
-  const homeHref = import.meta.env.BASE_URL;
+interface NavbarProps {
+  settings?: SiteSettings;
+}
 
+const Navbar = ({ settings = DEFAULT_CMS_CONTENT.settings }: NavbarProps) => {
   useEffect(() => {
+    if (smoother) {
+      smoother.kill();
+    }
     smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
@@ -26,57 +34,65 @@ const Navbar = () => {
     smoother.paused(true);
 
     const links = document.querySelectorAll(".header ul a");
+    const clickHandlers = new Map<HTMLAnchorElement, (e: Event) => void>();
     links.forEach((elem) => {
       const element = elem as HTMLAnchorElement;
-      element.addEventListener("click", (e) => {
+      const handler = (e: Event) => {
+        const clickEvent = e as MouseEvent;
+        const targetElem = e.currentTarget as HTMLAnchorElement;
+        const section = targetElem.getAttribute("data-href");
+        if (!section || !section.startsWith("#")) return;
         if (window.innerWidth > 1024) {
-          e.preventDefault();
-          const targetElem = e.currentTarget as HTMLAnchorElement;
-          const section = targetElem.getAttribute("data-href");
+          clickEvent.preventDefault();
           smoother.scrollTo(section, true, "top top");
         }
-      });
+      };
+      clickHandlers.set(element, handler);
+      element.addEventListener("click", handler);
     });
-    window.addEventListener("resize", () => {
+    const onResize = () => {
       ScrollSmoother.refresh(true);
-    });
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      clickHandlers.forEach((handler, element) => {
+        element.removeEventListener("click", handler);
+      });
+      window.removeEventListener("resize", onResize);
+      smoother?.kill();
+    };
   }, []);
   return (
     <>
       <div className="header">
-        <a href={homeHref} className="navbar-title" data-cursor="disable">
-          MK
-        </a>
+        <AppLink href="/" className="navbar-title" data-cursor="disable">
+          {settings.heroInitials}
+        </AppLink>
         <a
-          href="https://www.linkedin.com/in/mayurkanojiya/"
+          href={settings.profileUrl}
           className="navbar-connect"
           data-cursor="disable"
           target="_blank"
           rel="noreferrer"
         >
-          linkedin.com/in/mayurkanojiya
+          {settings.linkedinHandle}
         </a>
         <ul>
-          <li>
-            <a data-href="#about" href="#about">
-              <HoverLinks text="ABOUT" />
-            </a>
-          </li>
-          <li>
-            <a data-href="#work" href="#work">
-              <HoverLinks text="WORK" />
-            </a>
-          </li>
-          <li>
-            <a data-href="#patents" href="#patents">
-              <HoverLinks text="PATENTS" />
-            </a>
-          </li>
-          <li>
-            <a data-href="#contact" href="#contact">
-              <HoverLinks text="CONTACT" />
-            </a>
-          </li>
+          {settings.navigation
+            .filter((item) => item.isVisible)
+            .map((item) => (
+              <li key={`${item.label}-${item.href}`}>
+                {item.type === "section" ? (
+                  <a data-href={item.href} href={item.href}>
+                    <HoverLinks text={item.label} />
+                  </a>
+                ) : (
+                  <AppLink href={item.href} data-cursor="disable">
+                    <HoverLinks text={item.label} />
+                  </AppLink>
+                )}
+              </li>
+            ))}
         </ul>
       </div>
 

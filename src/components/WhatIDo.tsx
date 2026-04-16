@@ -1,8 +1,14 @@
 import { useEffect, useRef } from "react";
 import "./styles/WhatIDo.css";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { DEFAULT_CMS_CONTENT } from "../cms/defaultContent";
+import { WhatIDoContent } from "../cms/types";
 
-const WhatIDo = () => {
+interface WhatIDoProps {
+  content?: WhatIDoContent;
+}
+
+const WhatIDo = ({ content = DEFAULT_CMS_CONTENT.sections.whatIDo }: WhatIDoProps) => {
   const containerRef = useRef<(HTMLDivElement | null)[]>([]);
   const setRef = (el: HTMLDivElement | null, index: number) => {
     containerRef.current[index] = el;
@@ -28,9 +34,11 @@ const WhatIDo = () => {
     <div className="whatIDO">
       <div className="what-box">
         <h2 className="title">
-          W<span className="hat-h2">HAT</span>
+          {content.titlePrimary.slice(0, 1)}
+          <span className="hat-h2">{content.titlePrimary.slice(1)}</span>
           <div>
-            I<span className="do-h2"> DO</span>
+            {content.titleSecondary.slice(0, 1)}
+            <span className="do-h2">{content.titleSecondary.slice(1)}</span>
           </div>
         </h2>
       </div>
@@ -58,92 +66,53 @@ const WhatIDo = () => {
               />
             </svg>
           </div>
-          <div
-            className="what-content what-noTouch"
-            ref={(el) => setRef(el, 0)}
-          >
-            <div className="what-border1">
-              <svg height="100%">
-                <line
-                  x1="0"
-                  y1="0"
-                  x2="100%"
-                  y2="0"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeDasharray="6,6"
-                />
-                <line
-                  x1="0"
-                  y1="100%"
-                  x2="100%"
-                  y2="100%"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeDasharray="6,6"
-                />
-              </svg>
-            </div>
-            <div className="what-corner"></div>
-
-            <div className="what-content-in">
-              <h3>AI ARCHITECTURE</h3>
-              <h4>Deterministic LLM & Agent Systems</h4>
-              <p>
-                I design enterprise AI systems that stay reliable in production,
-                combining agent orchestration, structured output paths, and
-                quality guardrails.
-              </p>
-              <h5>Skillset & tools</h5>
-              <div className="what-content-flex">
-                <div className="what-tags">LLMs &amp; agent design</div>
-                <div className="what-tags">RAG &amp; retrieval</div>
-                <div className="what-tags">Prompt systems</div>
-                <div className="what-tags">Evals &amp; guardrails</div>
-                <div className="what-tags">Workflow orchestration</div>
-                <div className="what-tags">Enterprise integration</div>
+          {content.cards.map((card, index) => (
+            <div
+              className="what-content what-noTouch"
+              ref={(el) => setRef(el, index)}
+              key={`${card.title}-${index}`}
+            >
+              <div className="what-border1">
+                <svg height="100%">
+                  {index === 0 ? (
+                    <line
+                      x1="0"
+                      y1="0"
+                      x2="100%"
+                      y2="0"
+                      stroke="white"
+                      strokeWidth="2"
+                      strokeDasharray="6,6"
+                    />
+                  ) : null}
+                  <line
+                    x1="0"
+                    y1="100%"
+                    x2="100%"
+                    y2="100%"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeDasharray="6,6"
+                  />
+                </svg>
               </div>
-              <div className="what-arrow"></div>
-            </div>
-          </div>
-          <div
-            className="what-content what-noTouch"
-            ref={(el) => setRef(el, 1)}
-          >
-            <div className="what-border1">
-              <svg height="100%">
-                <line
-                  x1="0"
-                  y1="100%"
-                  x2="100%"
-                  y2="100%"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeDasharray="6,6"
-                />
-              </svg>
-            </div>
-            <div className="what-corner"></div>
-            <div className="what-content-in">
-              <h3>VISION &amp; SCALE</h3>
-              <h4>Computer Vision and Edge AI Delivery</h4>
-              <p>
-                I build and ship vision systems for real-world constraints,
-                including low-latency inference, OCR pipelines, and
-                performance-aware deployment.
-              </p>
-              <h5>Skillset & tools</h5>
-              <div className="what-content-flex">
-                <div className="what-tags">Computer vision</div>
-                <div className="what-tags">Edge AI</div>
-                <div className="what-tags">OpenVINO optimization</div>
-                <div className="what-tags">Python</div>
-                <div className="what-tags">MLOps practices</div>
-                <div className="what-tags">Reliability engineering</div>
+              <div className="what-corner"></div>
+              <div className="what-content-in">
+                <h3>{card.title}</h3>
+                <h4>{card.subtitle}</h4>
+                <p>{card.description}</p>
+                <h5>Skillset & tools</h5>
+                <div className="what-content-flex">
+                  {card.skills.map((skill) => (
+                    <div className="what-tags" key={`${card.title}-${skill}`}>
+                      {skill}
+                    </div>
+                  ))}
+                </div>
+                <div className="what-arrow"></div>
               </div>
-              <div className="what-arrow"></div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

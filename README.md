@@ -1,6 +1,6 @@
 # 3D Portfolio Website (Mayur Kanojiya)
 
-This repository contains Mayur Kanojiya's portfolio built on the same UI/animation source style as the reference 3D portfolio, with all personal content updated for Mayur.
+This repository contains Mayur Kanojiya's portfolio with a CMS-driven architecture (Supabase + React/Vite). The existing 3D/animation style is preserved while content, navigation, blog, and dedicated showcase pages are fully dynamic through the admin panel.
 
 ## Stack
 
@@ -8,6 +8,7 @@ This repository contains Mayur Kanojiya's portfolio built on the same UI/animati
 - GSAP + ScrollSmoother
 - Three.js + React Three Fiber
 - React Icons + React Fast Marquee
+- Supabase (Auth, Postgres, Storage via REST)
 
 ## Run locally
 
@@ -23,17 +24,46 @@ npm run build
 npm run preview
 ```
 
-## Content updated
+## CMS + Admin Setup
 
-The following sections are customized with Mayur's profile content:
+1. Create a Supabase project.
+2. Run SQL in order:
+- `supabase/schema.sql`
+- `supabase/seed.sql`
+3. Configure Google provider in Supabase Auth.
+4. Add environment variables in `.env`:
 
-- Hero / Landing
-- About
-- What I Do
-- Career & Experience
-- Work Projects
-- Contact + Social Links
-- Loading Screen Identity
+```bash
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<your-anon-key>
+```
+
+5. Start app and use:
+- `/admin/login` for Google sign-in
+- `/admin` for CMS dashboard
+
+Super admin is seeded as:
+- `kanojiyamayur@gmail.com`
+
+## Dynamic Routes
+
+- `/` Home
+- `/work-showcase` Work dedicated page
+- `/patent-showcase` Patent dedicated page
+- `/blog` Blog listing
+- `/blog/:slug` Blog detail page
+- `/admin/login` Admin login
+- `/admin` Admin CMS
+
+## CMS Scope
+
+- Site/global settings, navigation, section visibility/order
+- Homepage sections (hero, about, what-I-do, career, contact)
+- Work and patent items with `is_view_more_tile`, ordering, visibility, animation presets
+- Tech stack items and animation controls
+- Blog posts/categories/tags with draft/publish workflow
+- Media library metadata and storage uploads
+- Admin users/invites and revision history/restore
 
 ## Credits
 

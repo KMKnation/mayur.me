@@ -1,23 +1,26 @@
-import { useEffect, useRef } from "react";
+import { CSSProperties, useEffect, useMemo, useRef } from "react";
+import { DEFAULT_CMS_CONTENT } from "../cms/defaultContent";
+import { clampAnimationSettings } from "../cms/animation";
+import { AnimationSettings, TechItem } from "../cms/types";
 
-const techItems = [
-  "React",
-  "Node.js",
-  "TypeScript",
-  "Python",
-  "LLM Systems",
-  "Multi-Agent Orchestration",
-  "Computer Vision",
-  "OpenVINO",
-  "RAG Pipelines",
-  "Enterprise AI",
-  "MLOps",
-  "GenAI",
-];
+interface TechStackProps {
+  items?: TechItem[];
+  animationSettings?: AnimationSettings;
+}
 
-const TechStack = () => {
+const TechStack = ({
+  items = DEFAULT_CMS_CONTENT.techItems,
+  animationSettings = DEFAULT_CMS_CONTENT.settings.animationSettings,
+}: TechStackProps) => {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const ballRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const normalizedAnimation = useMemo(
+    () => clampAnimationSettings(animationSettings),
+    [animationSettings]
+  );
+  const techItems = items
+    .filter((item) => item.isVisible)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -26,8 +29,8 @@ const TechStack = () => {
     const canHover = window.matchMedia("(hover: hover) and (pointer: fine)");
     if (!canHover.matches) return;
 
-    const repulsionRadius = 180;
-    const maxPush = 96;
+    const repulsionRadius = normalizedAnimation.cursorRepulsionRadius;
+    const maxPush = normalizedAnimation.cursorRepulsionStrength;
 
     const resetRepulsion = () => {
       ballRefs.current.forEach((ball) => {
@@ -80,7 +83,23 @@ const TechStack = () => {
       section.removeEventListener("pointercancel", resetRepulsion);
       resetRepulsion();
     };
-  }, []);
+  }, [
+    normalizedAnimation.cursorRepulsionRadius,
+    normalizedAnimation.cursorRepulsionStrength,
+  ]);
+
+  const getBallStyle = (index: number): CSSProperties =>
+    ({
+      "--duration": `${Math.max(
+        3.2,
+        12 - normalizedAnimation.techBallFloatSpeed + (index % 4) * 0.65
+      ).toFixed(2)}s`,
+      "--float-y": `${Math.max(
+        4,
+        normalizedAnimation.techBallIntensity + ((index % 3) - 1) * 2.2
+      ).toFixed(2)}px`,
+      "--delay": `${(index % 5) * 0.22}s`,
+    }) as CSSProperties;
 
   return (
     <div className="techstack" ref={sectionRef} data-cursor="disable">
@@ -88,14 +107,15 @@ const TechStack = () => {
       <div className="techstack-cloud">
         {techItems.map((item, index) => (
           <div
-            key={item}
+            key={item.id}
             className="tech-ball"
             ref={(node) => {
               ballRefs.current[index] = node;
             }}
+            style={getBallStyle(index)}
           >
             <div className="tech-ball-inner">
-              <span>{item}</span>
+              <span>{item.label}</span>
             </div>
           </div>
         ))}
