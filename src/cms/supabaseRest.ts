@@ -2,8 +2,14 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as
   | string
   | undefined;
+const APP_BASE_URL = import.meta.env.BASE_URL as string | undefined;
 
 const SESSION_STORAGE_KEY = "mk_admin_session";
+
+const getAppBasePrefix = () => {
+  if (!APP_BASE_URL || APP_BASE_URL.startsWith(".")) return "";
+  return APP_BASE_URL.endsWith("/") ? APP_BASE_URL.slice(0, -1) : APP_BASE_URL;
+};
 
 export interface SupabaseSession {
   accessToken: string;
@@ -165,7 +171,8 @@ export const getCurrentUser = async (accessToken: string) => {
 
 export const getGoogleSignInUrl = (redirectPath: string) => {
   assertConfig();
-  const redirectTo = `${window.location.origin}${redirectPath}`;
+  const path = redirectPath.startsWith("/") ? redirectPath : `/${redirectPath}`;
+  const redirectTo = `${window.location.origin}${getAppBasePrefix()}${path}`;
   const query = new URLSearchParams({
     provider: "google",
     redirect_to: redirectTo,

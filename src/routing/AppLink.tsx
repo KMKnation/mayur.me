@@ -1,5 +1,5 @@
 import { AnchorHTMLAttributes, MouseEvent, PropsWithChildren } from "react";
-import { navigate } from "./router";
+import { navigate, resolveHref } from "./router";
 
 interface AppLinkProps
   extends PropsWithChildren,
@@ -11,6 +11,8 @@ const isModifiedEvent = (event: MouseEvent<HTMLAnchorElement>) =>
   event.metaKey || event.altKey || event.ctrlKey || event.shiftKey;
 
 const AppLink = ({ href, children, onClick, ...props }: AppLinkProps) => {
+  const resolvedHref = resolveHref(href);
+
   const onLinkClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event);
     if (
@@ -28,11 +30,10 @@ const AppLink = ({ href, children, onClick, ...props }: AppLinkProps) => {
   };
 
   return (
-    <a href={href} onClick={onLinkClick} {...props}>
+    <a href={resolvedHref} onClick={onLinkClick} {...props}>
       {children}
     </a>
   );
 };
 
 export default AppLink;
-
