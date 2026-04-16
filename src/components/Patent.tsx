@@ -1,6 +1,17 @@
 import "./styles/Patent.css";
 import { MdArrowOutward } from "react-icons/md";
 
+const PATENT_SHOWCASE_URL = `${import.meta.env.BASE_URL}patent-showcase.html`;
+
+interface PatentItem {
+  title: string;
+  type: string;
+  summary: string;
+  meta: string;
+  link: string;
+  isViewMoreTile?: boolean;
+}
+
 const patents = [
   {
     title: "US Patent 12,461,979",
@@ -26,7 +37,16 @@ const patents = [
     meta: "Area: AI + Enterprise Support Intelligence",
     link: "https://publish.derwent.com/d75a83e2cd2667012b5571f8f3239cb2/patent/20260087081",
   },
-];
+  {
+    title: "Explore Full Patent Portfolio",
+    type: "View More",
+    summary:
+      "Open the dedicated patent page for the complete timeline, domains, and deeper innovation notes.",
+    meta: "Patent Library",
+    link: PATENT_SHOWCASE_URL,
+    isViewMoreTile: true,
+  },
+] satisfies PatentItem[];
 
 const Patent = () => {
   return (
@@ -37,14 +57,28 @@ const Patent = () => {
         </h2>
         <div className="patent-grid" data-cursor="disable">
           {patents.map((patent) => (
-            <article className="patent-card" key={patent.title}>
+            <article
+              className={`patent-card ${
+                patent.isViewMoreTile ? "patent-card-viewmore" : ""
+              }`}
+              key={patent.title}
+            >
+              {patent.isViewMoreTile ? (
+                <div className="patent-viewmore-scene" aria-hidden="true">
+                  <span className="patent-viewmore-ring patent-viewmore-ring-1"></span>
+                  <span className="patent-viewmore-ring patent-viewmore-ring-2"></span>
+                  <span className="patent-viewmore-core"></span>
+                  <span className="patent-viewmore-pulse"></span>
+                </div>
+              ) : null}
               <p className="patent-type">{patent.type}</p>
               <h3>{patent.title}</h3>
               <p className="patent-summary">{patent.summary}</p>
               <div className="patent-footer">
                 <span>{patent.meta}</span>
                 <a href={patent.link} target="_blank" rel="noreferrer">
-                  View <MdArrowOutward />
+                  {patent.isViewMoreTile ? "View More" : "View"}{" "}
+                  <MdArrowOutward />
                 </a>
               </div>
             </article>

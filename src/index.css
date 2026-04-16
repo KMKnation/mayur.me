@@ -106,11 +106,23 @@ body {
 .techstack {
   width: 100%;
   position: relative;
-  overflow: clip;
+  overflow: visible;
   height: var(--vh);
   margin: auto;
   margin-top: 50px;
   margin-bottom: -100px;
+  isolation: isolate;
+}
+
+.techstack::before {
+  content: "";
+  position: absolute;
+  inset: 15% 0 0;
+  background:
+    radial-gradient(circle at 22% 34%, rgba(20, 184, 166, 0.2), transparent 45%),
+    radial-gradient(circle at 76% 60%, rgba(56, 189, 248, 0.22), transparent 48%);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .techstack h2 {
@@ -122,55 +134,264 @@ body {
   left: 0;
   font-weight: 400;
   text-transform: uppercase;
+  z-index: 2;
 }
 
-.techstack-grid {
-  width: min(980px, 90%);
-  margin: 0 auto;
+.techstack-cloud {
+  width: 100%;
   height: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  justify-content: center;
-  gap: 14px;
-  padding-top: 200px;
+  top: 0;
+  left: 0;
+  transform: none;
+  position: absolute;
+  overflow: visible;
+  z-index: 2;
 }
 
-.techstack-chip {
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #d8f8f2;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-size: 15px;
+.tech-ball {
+  --size: 130px;
+  --duration: 8s;
+  --delay: 0s;
+  --repel-x: 0px;
+  --repel-y: 0px;
+  width: var(--size);
+  height: var(--size);
+  position: absolute;
+  transform: translate3d(var(--repel-x), var(--repel-y), 0);
+  transition: transform 80ms cubic-bezier(0.22, 0.9, 0.31, 1);
+  will-change: transform;
+}
+
+.tech-ball-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid rgba(207, 253, 248, 0.24);
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.4), transparent 34%),
+    radial-gradient(circle at 32% 34%, rgba(118, 255, 232, 0.34), rgba(12, 45, 66, 0.88) 72%);
+  box-shadow:
+    inset -12px -14px 20px rgba(0, 0, 0, 0.18),
+    inset 7px 10px 14px rgba(255, 255, 255, 0.1),
+    0 12px 18px rgba(0, 0, 0, 0.2),
+    0 0 14px rgba(45, 212, 191, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ebfffc;
+  padding: 16px;
+  animation: techBallFloat var(--duration) ease-in-out infinite;
+  animation-delay: var(--delay);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.tech-ball-inner span {
+  font-size: clamp(11px, 0.72vw, 13px);
+  line-height: 1.18;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  text-wrap: balance;
+  font-weight: 500;
 }
 
-.techstack-chip:hover {
-  transform: translateY(-3px);
-  border-color: var(--accentColor);
+.tech-ball:hover .tech-ball-inner {
+  transform: translateY(-3px) scale(1.02);
+  border-color: rgba(167, 252, 244, 0.5);
+  box-shadow:
+    inset -12px -14px 20px rgba(0, 0, 0, 0.2),
+    inset 7px 10px 14px rgba(255, 255, 255, 0.11),
+    0 14px 20px rgba(0, 0, 0, 0.22),
+    0 0 16px rgba(45, 212, 191, 0.2);
+}
+
+.tech-ball:nth-child(1) {
+  top: 4%;
+  left: 4%;
+  --size: 164px;
+  --duration: 8.2s;
+}
+
+.tech-ball:nth-child(2) {
+  top: 3%;
+  left: 23%;
+  --size: 126px;
+  --duration: 7.1s;
+  --delay: 0.6s;
+}
+
+.tech-ball:nth-child(3) {
+  top: 6%;
+  right: 27%;
+  --size: 138px;
+  --duration: 8.8s;
+  --delay: 0.9s;
+}
+
+.tech-ball:nth-child(4) {
+  top: 8%;
+  right: 6%;
+  --size: 118px;
+  --duration: 7.6s;
+  --delay: 1.4s;
+}
+
+.tech-ball:nth-child(5) {
+  top: 33%;
+  left: 14%;
+  --size: 148px;
+  --duration: 9.3s;
+  --delay: 1.2s;
+}
+
+.tech-ball:nth-child(6) {
+  top: 30%;
+  left: 41%;
+  --size: 160px;
+  --duration: 8.7s;
+  --delay: 0.4s;
+}
+
+.tech-ball:nth-child(7) {
+  top: 33%;
+  right: 15%;
+  --size: 134px;
+  --duration: 7.8s;
+  --delay: 1.6s;
+}
+
+.tech-ball:nth-child(8) {
+  bottom: 14%;
+  left: 3%;
+  --size: 126px;
+  --duration: 8.5s;
+  --delay: 2.1s;
+}
+
+.tech-ball:nth-child(9) {
+  bottom: 8%;
+  left: 27%;
+  --size: 152px;
+  --duration: 9.1s;
+  --delay: 2.4s;
+}
+
+.tech-ball:nth-child(10) {
+  bottom: 9%;
+  right: 31%;
+  --size: 126px;
+  --duration: 7.4s;
+  --delay: 1.8s;
+}
+
+.tech-ball:nth-child(11) {
+  bottom: 10%;
+  right: 10%;
+  --size: 138px;
+  --duration: 8.4s;
+  --delay: 2.6s;
+}
+
+.tech-ball:nth-child(12) {
+  top: 52%;
+  right: 39%;
+  --size: 124px;
+  --duration: 7.2s;
+  --delay: 1s;
+}
+
+@keyframes techBallFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-ball-inner {
+    animation: none;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .techstack-cloud {
+    width: min(980px, 96%);
+  }
+
+  .tech-ball {
+    --size: 112px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .techstack {
+    height: auto;
+    min-height: var(--vh);
+    margin-bottom: 0;
+    padding-bottom: 20px;
+  }
+
+  .techstack h2 {
+    font-size: 40px;
+    position: relative;
+    top: auto;
+    margin-top: 90px;
+  }
+
+  .techstack-cloud {
+    width: min(600px, 92%);
+    height: auto;
+    top: auto;
+    left: auto;
+    transform: none;
+    position: relative;
+    margin: 14px auto 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    overflow: visible;
+    padding-bottom: 34px;
+  }
+
+  .tech-ball {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 102px;
+    height: 102px;
+    padding: 10px;
+    animation-duration: 6.5s;
+  }
+
+  .tech-ball-inner {
+    animation-duration: 6.5s;
+  }
+
+  .tech-ball-inner span {
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .tech-ball {
+    width: 92px;
+    height: 92px;
+  }
+
+  .tech-ball-inner span {
+    font-size: 9px;
+  }
 }
 
 @media screen and (min-width: 768px) {
   body {
     --cWidth: 94%;
-  }
-}
-
-@media screen and (max-width: 900px) {
-  .techstack h2 {
-    font-size: 40px;
-  }
-
-  .techstack-grid {
-    padding-top: 140px;
-    gap: 10px;
-  }
-
-  .techstack-chip {
-    font-size: 12px;
-    padding: 8px 12px;
   }
 }

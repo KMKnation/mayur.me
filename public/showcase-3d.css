@@ -1,0 +1,232 @@
+:root {
+  --accent: #5eead4;
+  --bg: #060b14;
+  --bg-2: #050810;
+  --text: #eaf2ff;
+  --muted: #a4b1c8;
+  --line: #2a3448;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Geist", "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(94, 234, 212, 0.12), transparent 35%),
+    radial-gradient(circle at 84% 18%, rgba(56, 189, 248, 0.12), transparent 30%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+}
+
+.showcase-shell {
+  width: min(1320px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 46px 0 80px;
+}
+
+.showcase-title {
+  margin: 0;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 500;
+}
+
+.showcase-title span {
+  color: var(--accent);
+}
+
+.showcase-lead {
+  margin: 14px 0 34px;
+  max-width: 760px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.showcase-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+}
+
+.showcase-scene {
+  position: relative;
+  height: 210px;
+  background: radial-gradient(circle at 28% 24%, rgba(94, 234, 212, 0.24), rgba(5, 12, 28, 0.9) 65%);
+  overflow: hidden;
+}
+
+.showcase-content {
+  padding: 18px;
+}
+
+.showcase-meta {
+  margin: 0;
+  color: #97a6bf;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.showcase-content h3 {
+  margin: 10px 0 8px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.showcase-content p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.showcase-link {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: #d4f6f0;
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: 0.25s;
+}
+
+.showcase-link:hover {
+  background: var(--accent);
+  color: #03100c;
+}
+
+.back-link {
+  margin-top: 28px;
+  display: inline-block;
+  color: #c8c8c8;
+  text-decoration: none;
+  border-bottom: 1px solid #6b6b6b;
+}
+
+.scene-center-rings::before,
+.scene-center-rings::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ringSpin 8s linear infinite;
+}
+
+.scene-center-rings::before {
+  width: 150px;
+  height: 150px;
+}
+
+.scene-center-rings::after {
+  width: 96px;
+  height: 96px;
+  border-color: rgba(94, 234, 212, 0.62);
+  animation-direction: reverse;
+  animation-duration: 6s;
+}
+
+.scene-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #7dd3fc;
+  box-shadow: 0 0 16px rgba(125, 211, 252, 0.72);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.scene-dot.hot-orange {
+  background: #fb923c;
+  box-shadow: 0 0 18px rgba(251, 146, 60, 0.9);
+}
+
+.scene-dot.hot-red {
+  background: #ef4444;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.95);
+}
+
+.scene-bars {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.scene-bars span {
+  height: 8px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(191, 248, 255, 0.25), rgba(94, 234, 212, 0.9));
+  animation: barGlow 2.2s ease-in-out infinite;
+}
+
+.scene-bars span:nth-child(2) {
+  width: 76%;
+  animation-delay: 0.2s;
+}
+
+.scene-bars span:nth-child(3) {
+  width: 62%;
+  animation-delay: 0.35s;
+}
+
+@keyframes ringSpin {
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes dotPulse {
+  0%,
+  100% {
+    transform: scale(0.85);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+}
+
+@keyframes barGlow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 920px) {
+  .showcase-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .showcase-scene {
+    height: 180px;
+  }
+}

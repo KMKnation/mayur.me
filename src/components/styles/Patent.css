@@ -17,7 +17,7 @@
 
 .patent-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -29,6 +29,8 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  position: relative;
+  overflow: hidden;
 }
 
 .patent-type {
@@ -70,6 +72,110 @@
   gap: 5px;
   color: #d8f8f2;
   font-size: 14px;
+}
+
+.patent-card-viewmore {
+  border-color: rgba(94, 234, 212, 0.45);
+  background: radial-gradient(circle at 60% 18%,
+      rgba(56, 189, 248, 0.16),
+      rgba(255, 255, 255, 0.02) 55%);
+}
+
+.patent-card-viewmore .patent-type,
+.patent-card-viewmore .patent-summary,
+.patent-card-viewmore .patent-footer span {
+  color: #b4e8f6;
+}
+
+.patent-viewmore-scene {
+  position: absolute;
+  right: -30px;
+  top: -26px;
+  width: 160px;
+  height: 160px;
+  pointer-events: none;
+}
+
+.patent-viewmore-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(125, 211, 252, 0.45);
+  animation: patentViewRing 7.5s linear infinite;
+}
+
+.patent-viewmore-ring-1 {
+  width: 140px;
+  height: 140px;
+  top: 10px;
+  left: 10px;
+}
+
+.patent-viewmore-ring-2 {
+  width: 92px;
+  height: 92px;
+  top: 34px;
+  left: 34px;
+  border-color: rgba(94, 234, 212, 0.62);
+  animation-direction: reverse;
+  animation-duration: 5.5s;
+}
+
+.patent-viewmore-core {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  top: 58px;
+  left: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #e0f7ff 0%, #0284c7 72%);
+  box-shadow: 0 0 18px rgba(2, 132, 199, 0.52);
+  animation: patentViewCore 2s ease-in-out infinite;
+}
+
+.patent-viewmore-pulse {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: 67px;
+  left: 67px;
+  border-radius: 50%;
+  border: 1px solid rgba(224, 247, 255, 0.75);
+  animation: patentViewPulse 2.2s ease-out infinite;
+}
+
+@keyframes patentViewRing {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes patentViewCore {
+  0%,
+  100% {
+    transform: scale(0.95);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes patentViewPulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+@media only screen and (max-width: 1600px) {
+  .patent-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media only screen and (max-width: 1400px) {

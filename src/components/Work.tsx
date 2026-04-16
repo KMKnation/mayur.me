@@ -4,7 +4,16 @@ import WorkImage from "./WorkImage";
 import { MdArrowBack, MdArrowForward } from "react-icons/md";
 
 const assetBase = import.meta.env.BASE_URL;
-const SHOWCASE_URL = `${assetBase}portfolio-showcase.html`;
+const WORK_SHOWCASE_URL = `${assetBase}work-showcase.html`;
+
+interface WorkProject {
+  title: string;
+  category: string;
+  tools: string;
+  image: string;
+  link: string;
+  isViewMoreTile?: boolean;
+}
 
 const projects = [
   {
@@ -35,7 +44,15 @@ const projects = [
     image: `${assetBase}images/sapphire.png`,
     link: "https://www.linkedin.com/in/mayurkanojiya/",
   },
-];
+  {
+    title: "Explore Complete Work Portfolio",
+    category: "Case Studies and Deep Dives",
+    tools: "Architecture breakdowns, execution notes, outcomes, and showcase snapshots",
+    image: `${assetBase}images/preview1.png`,
+    link: WORK_SHOWCASE_URL,
+    isViewMoreTile: true,
+  },
+] satisfies WorkProject[];
 
 const Work = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -111,10 +128,10 @@ const Work = () => {
                           <span className="tools-label">Tools & Features</span>
                           <p>{project.tools}</p>
                         </div>
-                        {index === projects.length - 1 ? (
+                        {project.isViewMoreTile ? (
                           <a
                             className="view-more-btn"
-                            href={SHOWCASE_URL}
+                            href={project.link}
                             target="_blank"
                             rel="noreferrer"
                             data-cursor="disable"
@@ -126,8 +143,9 @@ const Work = () => {
                     </div>
                     <div className="carousel-image-wrapper">
                       <WorkImage
-                        image={project.image}
-                        alt={project.title}
+                        title={project.title}
+                        category={project.category}
+                        variant={index}
                         link={project.link}
                       />
                     </div>
